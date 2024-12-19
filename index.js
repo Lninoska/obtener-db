@@ -47,26 +47,86 @@ const pool = new Pool({
     port: process.env.DB_PORT,
 });
 
-pool.query('SELECT * FROM Estudiantes WHERE edad < 25', (err, res) => {
-    if (err) {
-        console.error('error en la consulta:', err.message)
-    } else {
-        console.log('Resultado usando Callback:', res.rows)
-    }
-})
 
-pool.query('SELECT * FROM Estudiantes ORDER BY apellidos DESC', (err, res) => {
-    if (err) {
-        console.error('error en la consulta:', err.message)
-    } else {
-        console.log('Resultado usando Callback:', res.rows)
-    }
-})
+// pool.query('SELECT * FROM Estudiantes WHERE edad < 25', (err, res) => {
+//     if (err) {
+//         console.error('error en la consulta:', err.message)
+//     } else {
+//         console.log('Resultado usando Callback:', res.rows)
+//     }
+// })
 
-pool.query('SELECT * FROM cursos', (err, res) => {
-    if (err) {
-        console.error('error en la consulta:', err.message)
-    } else {
-        console.log('Resultado usando Callback:', res.rows)
+// pool.query('SELECT * FROM Estudiantes ORDER BY apellidos DESC', (err, res) => {
+//     if (err) {
+//         console.error('error en la consulta:', err.message)
+//     } else {
+//         console.log('Resultado usando Callback:', res.rows)
+//     }
+// })
+
+// pool.query('SELECT * FROM cursos', (err, res) => {
+//     if (err) {
+//         console.error('error en la consulta:', err.message)
+//     } else {
+//         console.log('Resultado usando Callback:', res.rows)
+//     }
+// })
+
+
+// CONSULTAS PARAMETRIZADAS 
+
+async function estudiantesmenores() {
+    const queryConfig = {
+        text: 'SELECT edad FROM Estudiantes WHERE edad > $1',
+        values: [25],
+        rowMode: 'array'
     }
-})
+    try {
+
+        const result = await pool.query(queryConfig);
+        console.log(result.rows)
+        result.rows.forEach(row => {
+            console.log('Fila como array:', row)
+        })
+    } catch (err) {
+        console.error('Error en la consulta:', err.message);
+    } finally {
+        pool.end
+
+    }
+}
+estudiantesmenores()
+
+// Consultas asíncronas con ASYNC/AWAIT
+
+const apellidosDescedente = async () => {
+    try {
+        const selectApellidos = {
+            text: 'SELECT apellidos FROM Estudiantes ORDER BY apellidos DESC',
+
+        }
+        const seleccionarApellidos = await pool.query(selectApellidos)
+        console.log('apellidos:', seleccionarApellidos.rows) 
+
+
+    } catch (err){
+        console.error('Error:', err.message);
+    }
+}
+apellidosDescedente()
+
+const cursosDisponibles = async () => {
+    try {
+        const selectCursos = {
+            text: 'SELECT cursos FROM cursos',
+
+        }
+        const seleccionarCursos = await pool.query(selectCursos)
+        console.log('Cursos disponibles:', seleccionarCursos.rows) 
+
+
+    } catch (err){
+        console.error('Error:', err.message);
+    }
+}
+cursosDisponibles()
